@@ -45,7 +45,6 @@
 - [Concepts to Learn](#-concepts-to-learn)
 - [How to Build and Flash](#-how-to-build-and-flash)
 - [Project Demonstration](#-project-demonstration)
-- [Repository Structure](#-repository-structure)
 - [Conclusion](#-conclusion)
 - [Author](#-author)
 
@@ -128,44 +127,30 @@ The project documentation also describes the system as an embedded healthcare ap
 
 # 🧩 System Architecture
 
-```mermaid
-flowchart LR
-    RTC[Real-Time Clock<br/>RTC] --> MCU[LPC2148<br/>ARM7 MCU]
+The supplied block diagram shows the overall system architecture: the **LPC2148** is the central controller, with the RTC, keypad, switches, LCD, LEDs and buzzer connected around it.
 
-    KEYPAD[4x4 Matrix Keypad] --> MCU
-    ADMIN[Admin Switch<br/>EINT0] --> MCU
-    DRINK[Drink Switch<br/>EINT1] --> MCU
-
-    MCU --> LCD[16x2 LCD]
-    MCU --> RED[Red LED]
-    MCU --> YELLOW[Yellow LED]
-    MCU --> GREEN[Green LED]
-    MCU --> BUZZER[Buzzer]
-
-    MCU --> LOGIC[Hydration Tracking<br/>Reminder Scheduling<br/>Admin Configuration]
-```
+![AquaGuardian Block Diagram](images/Block_diagram.jpg)
 
 ### High-Level Architecture
 
 ```text
-                 +----------------------+
-                 |      LPC2148 MCU     |
-                 |                      |
-                 |  RTC Scheduling      |
-                 |  Hydration Counter   |
-                 |  Reminder Logic      |
-                 |  Admin Menu         |
-                 +----------+-----------+
-                            |
-       +--------------------+--------------------+
-       |          |          |         |          |
-       v          v          v         v          v
-     LCD       Keypad     Admin      Drink     Indicators
-   16x2 LCD    4x4       Switch     Switch     LEDs+Buzzer
-                           EINT0      EINT1
+                  +----------------------+
+                  |      LPC2148 MCU     |
+                  |                      |
+                  |  RTC Scheduling      |
+                  |  Hydration Counter   |
+                  |  Reminder Logic      |
+                  |  Admin Menu          |
+                  +----------+-----------+
+                             |
+           +-----------------+------------------+
+           |          |          |       |     |
+           v          v          v       v     v
+         LCD       Keypad      Admin   Drink  Indicators
+       16x2 LCD     4x4       Switch   Switch  LEDs+Buzzer
+                              EINT0    EINT1
 ```
 
----
 
 # 🔧 Hardware Requirements
 
@@ -251,47 +236,18 @@ These mappings are implemented in `maincode.c`.
 
 # 🔌 Circuit / Wiring Diagram
 
-> The following is a **logical wiring diagram derived from the current source-code pin assignments**. Add your exact resistor, transistor, pull-up/pull-down and power-rail details if your physical prototype contains them.
+The supplied circuit diagram shows the LPC2148 connections used in the project, including the **16×2 LCD, 4×4 keypad, Admin/Drink external-interrupt switches, Red/Yellow/Green LEDs, and buzzer**.
 
-```text
-                         +----------------------+
-                         |       LPC2148        |
-                         |                      |
-       +---------------->| P0.8 - P0.15        |
-       |                 |      LCD DATA       |
-       |                 |                      |
-       |                 | P0.16 ---- LCD RS   |
-       |                 | P0.17 ---- LCD EN   |
-       |                 | P0.18 ---- LCD RW   |
-       |                 |                      |
-       |                 | P0.20 ---- RED LED  |
-       |                 | P0.21 ---- YELLOW   |
-       |                 | P0.22 ---- GREEN    |
-       |                 | P0.23 ---- BUZZER   |
-       |                 |                      |
-       |                 | P0.1  <--- ADMIN    |
-       |                 | P0.3  <--- DRINK    |
-       |                 |                      |
-       |                 | P1.16-P1.19 -> ROWS |
-       |                 | P1.20-P1.23 <- COLS |
-       |                 +----------------------+
-       |                            |
-       |                            |
-       |             +--------------+-------------+
-       |             |                            |
-       v             v                            v
-   +-------+     +---------+                 +---------+
-   | 16x2  |     |  4x4    |                 | Switches|
-   | LCD   |     | Keypad  |                 | EINT0/1 |
-   +-------+     +---------+                 +---------+
+![AquaGuardian Circuit Diagram](images/Circuit_diagram.jpg)
 
-                         +----------------+
-                         | RTC Peripheral |
-                         | inside LPC2148 |
-                         +----------------+
-```
+The important connections represented in the circuit are:
 
----
+- **LCD:** D0–D7 on P0.8–P0.15, RS on P0.16, EN on P0.17 and RW on P0.18.
+- **Keypad:** Rows on P1.16–P1.19 and columns on P1.20–P1.23.
+- **LEDs and buzzer:** Red LED on P0.20, Yellow LED on P0.21, Green LED on P0.22 and buzzer on P0.23.
+- **External interrupts:** Admin switch through EINT0/P0.1 and Drink switch through EINT1/P0.3.
+- **RTC:** Uses the RTC peripheral integrated in the LPC2148.
+
 
 # ⚙️ Working Principle
 
@@ -1272,25 +1228,11 @@ Power ON
 Test LCD / Keypad / RTC / Switches
 ```
 
-### Recommended repository practice
-
-Keep the project source organized:
-
-```text
-src/
-include/
-docs/
-images/
-README.md
-```
-
-If your current IDE requires a particular project/workspace format, keep that project file in the repository as well.
-
 ---
 
 # 📸 Project Demonstration
 
-For a strong GitHub repository, add photographs under `images/`:
+Project photographs can be placed under `images/`:
 
 ```text
 images/
@@ -1303,7 +1245,7 @@ images/
 └── final-prototype.jpg
 ```
 
-Recommended demonstration sequence:
+Demonstration sequence:
 
 ### Demo 1 — Normal Mode
 
@@ -1363,42 +1305,6 @@ Demonstrate:
 ### Demo 6 — Target Achievement
 
 Configure a small target for demonstration and show the Green LED when it is reached.
-
----
-
-# 🗂️ Repository Structure
-
-A polished GitHub repository can look like:
-
-```text
-AquaGuardian/
-│
-├── README.md
-│
-├── src/
-│   ├── maincode.c
-│   ├── functions.c
-│   ├── rtc.c
-│   ├── lcd.c
-│   └── KPM.c
-│
-├── include/
-│   ├── functions.h
-│   └── types.h
-│
-├── docs/
-│   ├── project-report.pdf
-│   ├── flowcharts.md
-│   └── circuit.md
-│
-├── images/
-│   ├── block-diagram.png
-│   ├── circuit-diagram.png
-│   ├── flowchart.png
-│   └── hardware.jpg
-│
-└── LICENSE
-```
 
 ---
 
@@ -1486,17 +1392,6 @@ The current version provides a strong embedded-systems foundation, while the pro
 Developed as an Embedded C / ARM7 microcontroller project using the LPC2148.
 
 ---
-
-## ⭐ If you found this project useful
-
-Feel free to:
-
-- ⭐ Star the repository
-- 🍴 Fork the project
-- 🛠️ Improve the firmware
-- 📡 Add IoT connectivity
-- ⌚ Experiment with smartwatch integration
-- 📱 Build a companion mobile application
 
 ---
 
